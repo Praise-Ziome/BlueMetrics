@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlueMetrics Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #0077b6;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 1.8em;
+      letter-spacing: 1px;
+    }
+    .container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 20px auto;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+    }
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #0077b6;
+    }
+    .card p {
+      font-size: 1.8em;
+      font-weight: bold;
+    }
+    canvas {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      padding: 10px;
+    }
+    footer {
+      text-align: center;
+      color: #555;
+      padding: 20px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <header>💧 BlueMetrics Water Quality Dashboard</header>
+  <div class="container">
+    
+    <!-- Dashboard Cards -->
+    <div class="cards">
+      <div class="card">
+        <h3>Average pH</h3>
+        <p id="avgPh">--</p>
+      </div>
+      <div class="card">
+        <h3>Average Turbidity</h3>
+        <p id="avgTurbidity">--</p>
+      </div>
+      <div class="card">
+        <h3>Average Temperature</h3>
+        <p id="avgTemp">--</p>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <canvas id="phChart" height="100"></canvas>
+    <canvas id="turbidityChart" height="100" style="margin-top:30px;"></canvas>
+    <canvas id="tempChart" height="100" style="margin-top:30px;"></canvas>
+  </div>
+
+  <footer>© 2025 BlueMetrics IoT Water Monitoring | Powered by ESP32 + Blynk + MySQL</footer>
+
+  <script>
+    // Global Chart instances
+    let phChart, turbidityChart, tempChart;
+
+    // Fetch live sensor data
+    async function fetchData() {
+      const res = await fetch("fetch_data.php");
+      const data = await res.json();
+
+      const timestamps = data.map(d => d.timestamp);
+      const ph = data.map(d => parseFloat(d.ph));
+      const turbidity = data.map(d => parseFloat(d.turbidity));
+      const temperature = data.map(d => parseFloat(d.temperature));
+
+      updateCharts(timestamps, ph, turbidity, temperature);
+    }
+
+    // Fetch daily averages
+    async function fetchDailyAvg() {
+      const res = await fetch("daily_avg.php");
+      const data = await res.json();
+
+      document.getElementById("avgPh").textContent = data.avg_ph || "--";
+      document.getElementById("avgTurbidity").textContent = data.avg_turbidity || "--";
+      document.getElementById("avgTemp").textContent = data.avg_temperature || "--";
+    }
+
+    // Update Chart.js visualizations
+    function updateCharts(timestamps, ph, turbidity, temperature) {
+      if (!phChart) {
+        phChart = new Chart(document.getElementById("phChart"), {
+          type: "line",
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: "pH Level",
+              data: ph,
+              borderColor: "#0077b6",
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "top" } },
+            scales: { x: { title: { display: true, text: "Timestamp" } } }
+          }
+        });
+
+        turbidityChart = new Chart(document.getElementById("turbidityChart"), {
+          type: "line",
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: "Turbidity (NTU)",
+              data: turbidity,
+              borderColor: "#00b4d8",
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "top" } },
+            scales: { x: { title: { display: true, text: "Timestamp" } } }
+          }
+        });
+
+        tempChart = new Chart(document.getElementById("tempChart"), {
+          type: "line",
+          data: {
+            labels: timestamps,
+            datasets: [{
+              label: "Temperature (°C)",
+              data: temperature,
+              borderColor: "#ff6b6b",
+              fill: false,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { position: "top" } },
+            scales: { x: { title: { display: true, text: "Timestamp" } } }
+          }
+        });
+      } else {
+        phChart.data.labels = timestamps;
+        phChart.data.datasets[0].data = ph;
+        turbidityChart.data.labels = timestamps;
+        turbidityChart.data.datasets[0].data = turbidity;
+        tempChart.data.labels = timestamps;
+        tempChart.data.datasets[0].data = temperature;
+
+        phChart.update();
+        turbidityChart.update();
+        tempChart.update();
+      }
+    }
+
+    // Auto-refresh every 10 seconds
+    setInterval(() => {
+      fetchData();
+      fetchDailyAvg();
+    }, 10000);
+
+    // Initial load
+    fetchData();
+    fetchDailyAvg();
+  </script>
+</body>
+</html>
