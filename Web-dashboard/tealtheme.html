@@ -8,39 +8,39 @@
   <!-- Tailwind + DaisyUI -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: "#0d9488",  // teal-600
-            secondary: "#14b8a6",// teal-500
-            accent: "#99f6e4",   // teal-100
-            success: "#10b981",  // green-500
-            danger: "#dc2626",   // red-600
-            neutral: "#0f172a",  // slate-900
-          },
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          primary: "#0f766e",   // teal-700 - deeper main accent
+          secondary: "#115e59", // teal-800 - darker secondary
+          accent: "#5eead4",    // teal-300 - highlight color
+          success: "#059669",   // green-600
+          danger: "#dc2626",    // red-600
+          neutral: "#0f172a",   // slate-900 for dark text
         },
       },
-      plugins: [daisyui],
-      daisyui: {
-        themes: [
-          {
-            aquateal: {
-              primary: "#0d9488",
-              secondary: "#14b8a6",
-              accent: "#99f6e4",
-              neutral: "#0f172a",
-              "base-100": "#f0fdfa",
-              info: "#67e8f9",
-              success: "#10b981",
-              warning: "#fbbf24",
-              error: "#ef4444",
-            },
+    },
+    plugins: [daisyui],
+    daisyui: {
+      themes: [
+        {
+          aquateal: {
+            primary: "#0f766e",   // strong deep teal
+            secondary: "#115e59", // darker teal tone
+            accent: "#5eead4",    // light accent teal
+            neutral: "#0f172a",   // dark gray text
+            "base-100": "#e0f2f1", // soft aqua background
+            info: "#2dd4bf",
+            success: "#059669",
+            warning: "#fbbf24",
+            error: "#ef4444",
           },
-        ],
-      },
-    };
-  </script>
+        },
+      ],
+    },
+  };
+</script>
   <script src="https://cdn.jsdelivr.net/npm/daisyui@4.6.0/dist/full.min.js"></script>
 
   <!-- ApexCharts -->
